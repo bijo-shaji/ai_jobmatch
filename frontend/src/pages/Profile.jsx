@@ -2,6 +2,21 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import Sidebar from "../components/Sidebar";
 
+const BACKEND_URL =
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+
+  if (imageUrl.startsWith("http")) {
+    return imageUrl;
+  }
+
+  return `${BACKEND_URL.replace(/\/$/, "")}${
+    imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`
+  }`;
+};
+
 function Profile() {
   const [profile, setProfile] = useState({
     full_name: "",
@@ -26,10 +41,13 @@ function Profile() {
   const fetchProfile = async () => {
     try {
       const response = await api.get("/profile/");
+
       setProfile(response.data);
 
       if (response.data.profile_image) {
-        setImagePreview(response.data.profile_image);
+        setImagePreview(
+          getImageUrl(response.data.profile_image)
+        );
       }
     } catch (err) {
       setError("Unable to load profile.");
@@ -69,6 +87,7 @@ function Profile() {
 
     setSelectedImage(file);
     setImagePreview(URL.createObjectURL(file));
+
     setMessage("");
     setError("");
   };
@@ -83,10 +102,10 @@ function Profile() {
     try {
       const formData = new FormData();
 
-      formData.append("full_name", profile.full_name);
-      formData.append("phone", profile.phone);
-      formData.append("location", profile.location);
-      formData.append("bio", profile.bio);
+      formData.append("full_name", profile.full_name || "");
+      formData.append("phone", profile.phone || "");
+      formData.append("location", profile.location || "");
+      formData.append("bio", profile.bio || "");
 
       if (selectedImage) {
         formData.append("profile_image", selectedImage);
@@ -101,7 +120,9 @@ function Profile() {
       setProfile(response.data);
 
       if (response.data.profile_image) {
-        setImagePreview(response.data.profile_image);
+        setImagePreview(
+          getImageUrl(response.data.profile_image)
+        );
       }
 
       setSelectedImage(null);
@@ -140,7 +161,9 @@ function Profile() {
         <div className="page-header">
           <div>
             <h1>My Profile</h1>
-            <p>Manage your personal information and profile details.</p>
+            <p>
+              Manage your personal information and profile details.
+            </p>
           </div>
         </div>
 
@@ -190,7 +213,9 @@ function Profile() {
                     hidden
                   />
 
-                  <p>JPG, PNG or other image formats. Maximum 5 MB.</p>
+                  <p>
+                    JPG, PNG or other image formats. Maximum 5 MB.
+                  </p>
                 </div>
               </div>
 
@@ -202,7 +227,7 @@ function Profile() {
                     id="full_name"
                     name="full_name"
                     type="text"
-                    value={profile.full_name}
+                    value={profile.full_name || ""}
                     onChange={handleChange}
                     placeholder="Enter your full name"
                   />
@@ -215,7 +240,7 @@ function Profile() {
                     id="phone"
                     name="phone"
                     type="text"
-                    value={profile.phone}
+                    value={profile.phone || ""}
                     onChange={handleChange}
                     placeholder="Enter your phone number"
                   />
@@ -228,7 +253,7 @@ function Profile() {
                     id="location"
                     name="location"
                     type="text"
-                    value={profile.location}
+                    value={profile.location || ""}
                     onChange={handleChange}
                     placeholder="City, State"
                   />
@@ -241,7 +266,7 @@ function Profile() {
                     id="bio"
                     name="bio"
                     rows="6"
-                    value={profile.bio}
+                    value={profile.bio || ""}
                     onChange={handleChange}
                     placeholder="Tell us a little about yourself..."
                   />
