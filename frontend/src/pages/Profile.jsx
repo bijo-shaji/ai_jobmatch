@@ -1,23 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import Sidebar from "../components/Sidebar";
-
-const BACKEND_URL =
-  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-
-const getImageUrl = (imageUrl) => {
-  if (!imageUrl) return null;
-
-  if (imageUrl.startsWith("http")) {
-    return imageUrl;
-  }
-
-  return `${BACKEND_URL.replace(/\/$/, "")}${
-    imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`
-  }`;
-};
+import { useAuth } from "../context/AuthContext";
+import { getImageUrl } from "../utils/imageUrl";
 
 function Profile() {
+  const { refreshUser } = useAuth();
   const [profile, setProfile] = useState({
     full_name: "",
     phone: "",
@@ -123,6 +111,10 @@ function Profile() {
         setImagePreview(
           getImageUrl(response.data.profile_image)
         );
+      }
+
+      if (refreshUser) {
+        await refreshUser();
       }
 
       setSelectedImage(null);

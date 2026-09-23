@@ -61,6 +61,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const userResponse = await api.get("/auth/me/");
+      setUser(userResponse.data);
+      return userResponse.data;
+    } catch (error) {
+      console.error("Failed to refresh user profile:", error);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -75,6 +85,7 @@ export function AuthProvider({ children }) {
         loading,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

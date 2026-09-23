@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/Sidebar";
+import { getImageUrl } from "../utils/imageUrl";
 
 function Dashboard() {
   const { user } = useAuth();
+  const [imgError, setImgError] = useState(false);
   const isCandidate = user?.role === "candidate";
+
+  const profileImageUrl = getImageUrl(user?.profile_image);
 
   return (
     <div className="dashboard-page">
@@ -31,10 +36,11 @@ function Dashboard() {
           </div>
 
           <div className="profile-badge">
-            {user?.profile_image ? (
+            {profileImageUrl && !imgError ? (
               <img
-                src={user.profile_image}
+                src={profileImageUrl}
                 alt="Profile"
+                onError={() => setImgError(true)}
               />
             ) : (
               user?.username?.charAt(0).toUpperCase()
